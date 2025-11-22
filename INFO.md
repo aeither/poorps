@@ -8,10 +8,10 @@ https://docs.pyth.network/price-feeds/core/price-feeds/price-feed-ids
 npm install -g bun
 bun install --cwd ./my-onchain-data
 cre workflow simulate my-onchain-data
-
 cre workflow deploy my-onchain-data
 
+bun install --cwd ./my-workflow
 cre workflow simulate my-workflow
+cre workflow simulate my-workflow --broadcast
 
 --
-

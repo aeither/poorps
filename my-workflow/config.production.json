@@ -1,3 +1,4 @@
 {
-  "schedule": "*/30 * * * * *"
+  "schedule": "*/30 * * * * *",
+  "url": "https://hermes.pyth.network/v2/updates/price/latest?ids%5B%5D=0xf0d57deca57b3da2fe63a493f4c25925fdfd8edf834b20f93e1f84dbd1504d4a"
 }
