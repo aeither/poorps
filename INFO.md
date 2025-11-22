@@ -10,3 +10,8 @@ bun install --cwd ./my-onchain-data
 cre workflow simulate my-onchain-data
 
 cre workflow deploy my-onchain-data
+
+cre workflow simulate my-workflow
+
+--
+
