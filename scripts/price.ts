@@ -1,7 +1,7 @@
+const SHIB_PRICE_ID = '0xf0d57deca57b3da2fe63a493f4c25925fdfd8edf834b20f93e1f84dbd1504d4a';
+const url = `https://hermes.pyth.network/v2/updates/price/latest?ids%5B%5D=${SHIB_PRICE_ID}`;
 
 async function main() {
-  const url = 'https://hermes.pyth.network/v2/updates/price/latest?ids%5B%5D=0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43&ids%5B%5D=0xc96458d393fe9deb7a7d63a0ac41e2898a67a7750dbd166673279e06c868df0a';
-
   try {
     const response = await fetch(url, {
       method: 'GET',
@@ -22,4 +22,3 @@ async function main() {
 }
 
 main();
-
