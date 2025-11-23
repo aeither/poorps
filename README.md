@@ -1,3 +1,8 @@
+
+<div align="center">
+    <img src="https://github.com/user-attachments/assets/6236ffc4-c476-4f5b-ae6e-50177f60d91b" alt="Logo" width="600">
+</div>
+
 # Poorps 🚀
 
 1Inch Aqua Repository: [placeholder]
