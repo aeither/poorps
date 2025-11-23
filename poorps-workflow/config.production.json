@@ -1,7 +1,7 @@
 {
   "schedule": "*/30 * * * * *",
   "url": "https://api.real-time-reserves.verinumus.io/v1/chainlink/proof-of-reserves/TrueUSD",
-  "priceUrl": "https://hermes.pyth.network/v2/updates/price/latest?ids%5B%5D=0xf0d57deca57b3da2fe63a493f4c25925fdfd8edf834b20f93e1f84dbd1504d4a",
+  "priceUrl": "https://hermes.pyth.network",
   "evms": [
     {
       "liquidatorAddress": "0x9175ed999fdff5BE6D9290609aF4b55BC130956C",
