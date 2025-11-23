@@ -11,8 +11,8 @@ cre workflow simulate my-onchain-data
 cre workflow deploy my-onchain-data
 
 bun install --cwd ./my-workflow
-cre workflow simulate my-workflow
-cre workflow simulate my-workflow --broadcast
+cre workflow simulate ./poorps-workflow
+cre workflow simulate ./poorps-workflow --broadcast
 
 --
 
