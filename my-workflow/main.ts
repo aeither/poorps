@@ -7,6 +7,7 @@ import {
   type Runtime,
 } from '@chainlink/cre-sdk';
 import { z } from 'zod';
+import { PYTH_PRICE_URL } from './constants';
 
 // Define Pyth Response Types
 interface PythPrice {
@@ -76,7 +77,7 @@ const getPrice = (runtime: Runtime<Config>): string => {
     .result();
 
   runtime.log(`Pyth Response: ${safeJsonStringify(pythResponse)}`);
-
+runtime.log(`Pyth Response: ${PYTH_PRICE_URL}`);
   if (pythResponse.parsed && pythResponse.parsed.length > 0) {
     const priceData = pythResponse.parsed[0].price;
     runtime.log(`SHIB Price: ${priceData.price} (conf: ${priceData.conf}, expo: ${priceData.expo})`);

@@ -30,10 +30,6 @@ const configSchema = z.object({
 
 type Config = z.infer<typeof configSchema>
 
-// Utility function to safely stringify objects with bigints
-const safeJsonStringify = (obj: any): string =>
-	JSON.stringify(obj, (_, value) => (typeof value === 'bigint' ? value.toString() : value), 2)
-
 const getCounterValue = (runtime: Runtime<Config>): bigint => {
 	const evmConfig = runtime.config.evms[0]
 
@@ -152,6 +148,12 @@ const onCronTrigger = (runtime: Runtime<Config>, payload: CronPayload): string =
 	}
 
 	runtime.log('Running CronTrigger')
+
+	const tgChatId = runtime.getSecret('TG_CHAT_ID').result().value
+	runtime.log(`TG_CHAT_ID: ${tgChatId}`)
+
+	const botToken = runtime.getSecret('BOT_TOKEN').result().value
+	runtime.log(`BOT_TOKEN: ${botToken}`)
 
 	return incrementCounter(runtime)
 }
