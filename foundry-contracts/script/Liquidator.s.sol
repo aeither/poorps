@@ -2,12 +2,12 @@
 pragma solidity ^0.8.13;
 
 import {Script} from "forge-std/Script.sol";
-import {TestLiquidator} from "../src/TestLiquidator.sol";
+import {Liquidator} from "../src/Liquidator.sol";
 import {SetPositionProxy} from "../src/SetPositionProxy.sol";
 import {LiquidateCollateralProxy} from "../src/LiquidateCollateralProxy.sol";
 
 contract LiquidatorScript is Script {
-    TestLiquidator public liquidator;
+    Liquidator public liquidator;
     SetPositionProxy public setPositionProxy;
     LiquidateCollateralProxy public liquidateCollateralProxy;
 
@@ -22,7 +22,7 @@ contract LiquidatorScript is Script {
         vm.startBroadcast();
 
         // 1. Deploy the Liquidator (Target)
-        liquidator = new TestLiquidator();
+        liquidator = new Liquidator();
 
         // 2. Deploy the Proxies
         setPositionProxy = new SetPositionProxy(

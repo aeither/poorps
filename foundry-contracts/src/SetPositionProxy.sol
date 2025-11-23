@@ -2,17 +2,17 @@
 pragma solidity ^0.8.19;
 
 import "./IReceiverTemplate.sol";
-import "./TestLiquidator.sol";
+import "./Liquidator.sol";
 
 contract SetPositionProxy is IReceiverTemplate {
-    TestLiquidator public liquidator;
+    Liquidator public liquidator;
 
     constructor(
         address _liquidator,
         address expectedAuthor,
         bytes10 expectedWorkflowName
     ) IReceiverTemplate(expectedAuthor, expectedWorkflowName) {
-        liquidator = TestLiquidator(_liquidator);
+        liquidator = Liquidator(_liquidator);
     }
 
     /// @inheritdoc IReceiverTemplate

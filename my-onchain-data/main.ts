@@ -12,7 +12,7 @@ import {
 } from '@chainlink/cre-sdk'
 import { type Address, decodeFunctionResult, encodeFunctionData, encodeAbiParameters, zeroAddress } from 'viem'
 import { z } from 'zod'
-import { TestLiquidator } from '../contracts/abi'
+import { Liquidator } from '../contracts/abi'
 
 const configSchema = z.object({
 	schedule: z.string(),
@@ -51,7 +51,7 @@ const isLiquidatable = (runtime: Runtime<Config>, userAddress: string): boolean 
 	const evmClient = new cre.capabilities.EVMClient(network.chainSelector.selector)
 
 	const callData = encodeFunctionData({
-		abi: TestLiquidator,
+		abi: Liquidator,
 		functionName: 'isLiquidatable',
 		args: [userAddress as Address],
 	})
@@ -67,7 +67,7 @@ const isLiquidatable = (runtime: Runtime<Config>, userAddress: string): boolean 
 		.result()
 
 	return decodeFunctionResult({
-		abi: TestLiquidator,
+		abi: Liquidator,
 		functionName: 'isLiquidatable',
 		data: bytesToHex(contractCall.data),
 	})

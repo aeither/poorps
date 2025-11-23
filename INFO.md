@@ -16,7 +16,7 @@ cre workflow simulate ./poorps-workflow --broadcast
 
 --
 
-### Counter
+### Liquidator
 ```bash
-source .env && rm -rf cache out && forge build && forge script --chain 84532 script/Counter.s.sol:CounterScript --rpc-url https://sepolia.base.org --broadcast --verify -vvvv --private-key ${PRIVATE_KEY}
+source .env && rm -rf cache out && forge build && forge script --chain 84532 script/Liquidator.s.sol:LiquidatorScript --rpc-url https://sepolia.base.org --broadcast --verify -vvvv --private-key ${PRIVATE_KEY}
 ```
