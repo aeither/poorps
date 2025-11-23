@@ -9,8 +9,9 @@
       "balanceReaderAddress": "0x4b0739c94C1389B55481cb7506c62430cA7211Cf",
       "messageEmitterAddress": "0x1d598672486ecB50685Da5497390571Ac4E93FDc",
       "counterAddress": "0x40101B6042DBB3baC4CE815138D4d61A801a7052",
-      "chainSelectorName": "base-testnet-sepolia",
-      "gasLimit": "1000000"
+      "chainSelectorName": "ethereum-testnet-sepolia-base-1",
+      "gasLimit": "1000000",
+      "senderAddress": "0x0dba585a86bb828708b14d2f83784564ae03a5d0"
     }
   ]
 }

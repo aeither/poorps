@@ -31,6 +31,7 @@ const configSchema = z.object({
 			counterAddress: z.string().optional(),
 			chainSelectorName: z.string(),
 			gasLimit: z.string(),
+			senderAddress: z.string(),
 		}),
 	),
 })
@@ -177,6 +178,7 @@ const sendEVMTransaction = (
 	abi: any,
 	functionName: string,
 	args: any[],
+	useReport: boolean = true,
 ): Uint8Array => {
 	const network = getNetwork({
 		chainFamily: 'evm',
@@ -197,35 +199,43 @@ const sendEVMTransaction = (
 		args,
 	})
 
-	// Step 1: Generate report using consensus capability
-	const reportResponse = runtime
-		.report({
-			encodedPayload: hexToBase64(callData),
-			encoderName: 'evm',
-			signingAlgo: 'ecdsa',
-			hashingAlgo: 'keccak256',
-		})
-		.result()
+	let txHash = new Uint8Array(32)
 
-	const resp = evmClient
-		.writeReport(runtime, {
-			receiver: contractAddress,
-			report: reportResponse,
-			gasConfig: {
-				gasLimit: evmConfig.gasLimit,
-			},
-		})
-		.result()
+	if (useReport) {
+		// Step 1: Generate report using consensus capability
+		const reportResponse = runtime
+			.report({
+				encodedPayload: hexToBase64(callData),
+				encoderName: 'evm',
+				signingAlgo: 'ecdsa',
+				hashingAlgo: 'keccak256',
+			})
+			.result()
 
-	const txStatus = resp.txStatus
+		const resp = evmClient
+			.writeReport(runtime, {
+				receiver: contractAddress,
+				report: reportResponse,
+				gasConfig: {
+					gasLimit: evmConfig.gasLimit,
+				},
+			})
+			.result()
 
-	if (txStatus !== TxStatus.SUCCESS) {
-		throw new Error(`Failed to write report: ${resp.errorMessage || txStatus}`)
+		runtime.log(`Write report transaction succeeded at txHash: ${JSON.stringify(runtime.config.evms)}`)
+
+		const txStatus = resp.txStatus
+
+		if (txStatus !== TxStatus.SUCCESS) {
+			throw new Error(`Failed to write report: ${resp.errorMessage || txStatus}`)
+		}
+
+		if (resp.txHash) {
+			txHash = new Uint8Array(resp.txHash)
+		}
+
+		runtime.log(`Write report transaction succeeded at txHash: ${bytesToHex(txHash)}`)
 	}
-
-	const txHash = resp.txHash || new Uint8Array(32)
-
-	runtime.log(`Write report transaction succeeded at txHash: ${bytesToHex(txHash)}`)
 
 	return txHash
 }
@@ -258,12 +268,57 @@ const updateReserves = (
 	return bytesToHex(txHash)
 }
 
+const getCounterValue = (runtime: Runtime<Config>): bigint => {
+	const evmConfig = runtime.config.evms[0]
+
+	if (!evmConfig.counterAddress) {
+		throw new Error('Counter address is not defined in config')
+	}
+
+	const network = getNetwork({
+		chainFamily: 'evm',
+		chainSelectorName: evmConfig.chainSelectorName,
+		isTestnet: true,
+	})
+
+	if (!network) {
+		throw new Error(`Network not found for chain selector name: ${evmConfig.chainSelectorName}`)
+	}
+
+	const evmClient = new cre.capabilities.EVMClient(network.chainSelector.selector)
+
+	const callData = encodeFunctionData({
+		abi: Counter,
+		functionName: 'number',
+		args: [],
+	})
+
+	const contractCall = evmClient
+		.callContract(runtime, {
+			call: encodeCallMsg({
+				from: zeroAddress,
+				to: evmConfig.counterAddress as Address,
+				data: callData,
+			}),
+		})
+		.result()
+
+	return decodeFunctionResult({
+		abi: Counter,
+		functionName: 'number',
+		data: bytesToHex(contractCall.data),
+	})
+}
+
 const incrementCounter = (runtime: Runtime<Config>): string => {
 	const evmConfig = runtime.config.evms[0]
 
 	if (!evmConfig.counterAddress) {
 		throw new Error('Counter address is not defined in config')
 	}
+
+	const counterValue = getCounterValue(runtime)
+	runtime.log(`Current Counter Value: ${counterValue.toString()}`)
 
 	runtime.log('Incrementing counter')
 
