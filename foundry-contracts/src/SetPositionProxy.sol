@@ -1,0 +1,33 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+import "./IReceiverTemplate.sol";
+import "./TestLiquidator.sol";
+
+contract SetPositionProxy is IReceiverTemplate {
+    TestLiquidator public liquidator;
+
+    constructor(
+        address _liquidator,
+        address expectedAuthor,
+        bytes10 expectedWorkflowName
+    ) IReceiverTemplate(expectedAuthor, expectedWorkflowName) {
+        liquidator = TestLiquidator(_liquidator);
+    }
+
+    /// @inheritdoc IReceiverTemplate
+    /// @notice Override onReport to skip metadata validation
+    function onReport(
+        bytes calldata /* metadata */,
+        bytes calldata report
+    ) external override {
+        _processReport(report);
+    }
+
+    /// @inheritdoc IReceiverTemplate
+    function _processReport(bytes calldata report) internal override {
+        (address user, bool isLiquidatable, uint256 collateralAmount) = abi.decode(report, (address, bool, uint256));
+        liquidator.setPosition(user, isLiquidatable, collateralAmount);
+    }
+}
+

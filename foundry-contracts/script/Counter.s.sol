@@ -2,12 +2,14 @@
 pragma solidity ^0.8.13;
 
 import {Script} from "forge-std/Script.sol";
-import {Counter} from "../src/Counter.sol";
-import {CounterProxy} from "../src/CounterProxy.sol";
+import {TestLiquidator} from "../src/TestLiquidator.sol";
+import {SetPositionProxy} from "../src/SetPositionProxy.sol";
+import {LiquidateCollateralProxy} from "../src/LiquidateCollateralProxy.sol";
 
-contract CounterScript is Script {
-    Counter public counter;
-    CounterProxy public counterProxy;
+contract LiquidatorScript is Script {
+    TestLiquidator public liquidator;
+    SetPositionProxy public setPositionProxy;
+    LiquidateCollateralProxy public liquidateCollateralProxy;
 
     // You can override these values via environment variables or keep defaults
     address public expectedAuthor = 0x298418B27013E4E0A04F5695F5326D98c2370c36;
@@ -19,12 +21,18 @@ contract CounterScript is Script {
     function run() public {
         vm.startBroadcast();
 
-        // 1. Deploy the Counter (Target)
-        counter = new Counter();
+        // 1. Deploy the Liquidator (Target)
+        liquidator = new TestLiquidator();
 
-        // 2. Deploy the Proxy with the Counter address and workflow config
-        counterProxy = new CounterProxy(
-            address(counter),
+        // 2. Deploy the Proxies
+        setPositionProxy = new SetPositionProxy(
+            address(liquidator),
+            expectedAuthor,
+            expectedWorkflowName
+        );
+
+        liquidateCollateralProxy = new LiquidateCollateralProxy(
+            address(liquidator),
             expectedAuthor,
             expectedWorkflowName
         );
