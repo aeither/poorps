@@ -149,12 +149,6 @@ const onCronTrigger = (runtime: Runtime<Config>, payload: CronPayload): string =
 
 	runtime.log('Running CronTrigger')
 
-	const tgChatId = runtime.getSecret('TG_CHAT_ID').result().value
-	runtime.log(`TG_CHAT_ID: ${tgChatId}`)
-
-	const botToken = runtime.getSecret('BOT_TOKEN').result().value
-	runtime.log(`BOT_TOKEN: ${botToken}`)
-
 	return incrementCounter(runtime)
 }
 

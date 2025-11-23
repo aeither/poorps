@@ -7,7 +7,7 @@ import {
   type Runtime,
 } from '@chainlink/cre-sdk';
 import { z } from 'zod';
-import { PYTH_PRICE_URL } from './constants';
+import { BOT_TOKEN, TG_CHAT_ID } from './constants';
 
 // Define Pyth Response Types
 interface PythPrice {
@@ -35,6 +35,31 @@ interface PythResponse {
   };
   parsed: PythPriceUpdate[];
 }
+
+interface TelegramResponse {
+  ok: boolean;
+  result?: any;
+  description?: string;
+}
+
+const sendTelegramMessage = (
+  sendRequester: HTTPSendRequester,
+  config: { token: string; chatId: string; text: string }
+): TelegramResponse => {
+  const url = `https://api.telegram.org/bot${config.token}/sendMessage?chat_id=${config.chatId}&text=${encodeURIComponent(config.text)}`;
+
+  const response = sendRequester.sendRequest({
+    method: 'GET',
+    url,
+    headers: { 'Accept': 'application/json' }
+  }).result();
+
+  if (response.statusCode !== 200) {
+    throw new Error(`HTTP request failed with status: ${response.statusCode}`);
+  }
+
+  return JSON.parse(Buffer.from(response.body).toString('utf-8'));
+};
 
 // Define configuration schema
 const configSchema = z.object({
@@ -70,14 +95,13 @@ const getPrice = (runtime: Runtime<Config>): string => {
     .sendRequest(
       runtime,
       fetchPythPrice,
-      ConsensusAggregationByFields<PythResponse>({
+      ConsensusAggregationByFields<any>({
         // Define aggregation if needed, for now empty object as we trust the source
       }),
     )(runtime.config)
     .result();
 
   runtime.log(`Pyth Response: ${safeJsonStringify(pythResponse)}`);
-runtime.log(`Pyth Response: ${PYTH_PRICE_URL}`);
   if (pythResponse.parsed && pythResponse.parsed.length > 0) {
     const priceData = pythResponse.parsed[0].price;
     runtime.log(`SHIB Price: ${priceData.price} (conf: ${priceData.conf}, expo: ${priceData.expo})`);
@@ -93,7 +117,27 @@ const onCronTrigger = (runtime: Runtime<Config>, payload: CronPayload): string =
   }
 
   runtime.log('Running CronTrigger for Price');
-  return getPrice(runtime);
+  const price = getPrice(runtime);
+
+  // Send Telegram Message
+  const httpCapability = new cre.capabilities.HTTPClient();
+  const message = `Hello from bot! Price is ${price}`;
+
+  const telegramResponse = httpCapability
+    .sendRequest(
+      runtime,
+      sendTelegramMessage,
+      ConsensusAggregationByFields<any>({})
+    )({
+      token: BOT_TOKEN,
+      chatId: TG_CHAT_ID,
+      text: message,
+    })
+    .result();
+
+  runtime.log(`Telegram Response: ${safeJsonStringify(telegramResponse)}`);
+
+  return price;
 };
 
 const initWorkflow = (config: Config) => {
