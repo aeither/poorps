@@ -1,5 +1,7 @@
 # Poorps 🚀
 
+1Inch Aqua Repository: [placeholder]
+
 **The Premier Memecoin Leverage Platform**
 
 Poorps is a decentralized perpetual futures platform designed specifically for memecoins. We provide two distinct versions to cater to different trading needs and liquidity sources:
@@ -37,7 +39,7 @@ For a fully decentralized, on-chain approach, our vAMM version allows for:
 ## 🏗 Architecture (vAMM Version)
 
 ### Smart Contracts (`foundry-contracts/`)
-- **TestLiquidator.sol**: The core vAMM engine. Manages virtual reserves (`vEthReserve`, `vUsdcReserve`), position tracking, and PnL calculations.
+- **Liquidator.sol**: The core vAMM engine. Manages virtual reserves (`vEthReserve`, `vUsdcReserve`), position tracking, and PnL calculations.
 - **Proxies**: `SetPositionProxy` and `LiquidateCollateralProxy` handle interactions from the workflow layer.
 
 ### Workflows (`poorps-workflow/`)
@@ -85,14 +87,14 @@ Powered by the **Chainlink Runtime Environment (CRE)**:
 
 ## 🛠 How it's made
 
-Poorps (vAMM Version) is built on a **Virtual Automated Market Maker (vAMM)** architecture inspired by the constant product formula ($x \cdot y = k$). We used **Solidity** to implement the core engine (`TestLiquidator`), which manages virtual reserves and tracks user positions (Long/Short) without requiring physical liquidity providers.
+Poorps (vAMM Version) is built on a **Virtual Automated Market Maker (vAMM)** architecture inspired by the constant product formula ($x \cdot y = k$). We used **Solidity** to implement the core engine (`Liquidator`), which manages virtual reserves and tracks user positions (Long/Short) without requiring physical liquidity providers.
 
 The automation layer is powered by the **Chainlink Runtime Environment (CRE)**. We wrote a custom TypeScript workflow that acts as an autonomous keeper. It periodically fetches real-time memecoin prices (SHIB, PEPE, DEGEN) from **Pyth Network**, checks the health of on-chain positions on **Base Sepolia**, and executes liquidations or updates seamlessly.
 
 **Partner Technologies:**
 *   **Chainlink CRE:** Enabled us to move complex logic (price fetching + health checks) off-chain, saving gas and allowing easy integration with Web2 services like Telegram for real-time alerts.
 *   **Pyth Network:** Provided the sub-second latency price feeds required to handle the extreme volatility of memecoins.
-*   **1 Inch:** Provided the sub-second latency price feeds required to handle the extreme volatility of memecoins.
+*   **1inch Aqua:** Utilized in our credit-based version (separate repo) to solve liquidity fragmentation. It allows for shared liquidity strategies where assets remain in user wallets, maximizing capital efficiency for leveraged memecoin trading without locking funds in traditional pools. 
 
 **Notable/Hacky:**
 We implemented a "virtual" bonding curve where the price discovery mechanism is mathematically decoupled from the collateral vault. The hackiest part is our simulation loop: the CRE workflow toggles the smart contract between "opening positions" and "liquidating" them, creating a self-sustaining demo that showcases the entire lifecycle live without waiting for actual market crashes.
