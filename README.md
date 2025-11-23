@@ -1,6 +1,8 @@
 # Poorps 🚀
 
-1Inch Aqua Repository: [placeholder]
+> A decentralized perpetual futures platform for memecoins featuring 1Inch Aqua and Pyth-powered vAMM.
+
+1Inch Aqua Folder in `1inch-aqua`
 
 **The Premier Memecoin Leverage Platform**
 
@@ -99,6 +101,8 @@ The automation layer is powered by the **Chainlink Runtime Environment (CRE)**. 
 **Notable/Hacky:**
 We implemented a "virtual" bonding curve where the price discovery mechanism is mathematically decoupled from the collateral vault. The hackiest part is our simulation loop: the CRE workflow toggles the smart contract between "opening positions" and "liquidating" them, creating a self-sustaining demo that showcases the entire lifecycle live without waiting for actual market crashes.
 
-## 📜 License
+## Implementation
 
-MIT
+https://github.com/aeither/poorps/blob/6c74fde69b042e2b24629d1ff69fd20c316df62f/poorps-workflow/main.ts#L101
+
+we implemented pyth pricing, for liquididation and for user notification
