@@ -16,7 +16,7 @@ import {
 } from '@chainlink/cre-sdk'
 import { type Address, decodeFunctionResult, encodeFunctionData, zeroAddress } from 'viem'
 import { z } from 'zod'
-import { BalanceReader, IERC20, MessageEmitter, ReserveManager } from '../contracts/abi'
+import { BalanceReader, Counter, IERC20, MessageEmitter, ReserveManager } from '../contracts/abi'
 
 const configSchema = z.object({
 	schedule: z.string(),
@@ -28,6 +28,7 @@ const configSchema = z.object({
 			proxyAddress: z.string(),
 			balanceReaderAddress: z.string(),
 			messageEmitterAddress: z.string(),
+			counterAddress: z.string().optional(),
 			chainSelectorName: z.string(),
 			gasLimit: z.string(),
 		}),
@@ -169,12 +170,14 @@ const getTotalSupply = (runtime: Runtime<Config>): bigint => {
 	return totalSupply
 }
 
-const updateReserves = (
+const sendEVMTransaction = (
 	runtime: Runtime<Config>,
-	totalSupply: bigint,
-	totalReserveScaled: bigint,
-): string => {
-	const evmConfig = runtime.config.evms[0]
+	evmConfig: Config['evms'][0],
+	contractAddress: string,
+	abi: any,
+	functionName: string,
+	args: any[],
+): Uint8Array => {
 	const network = getNetwork({
 		chainFamily: 'evm',
 		chainSelectorName: evmConfig.chainSelectorName,
@@ -187,20 +190,11 @@ const updateReserves = (
 
 	const evmClient = new cre.capabilities.EVMClient(network.chainSelector.selector)
 
-	runtime.log(
-		`Updating reserves totalSupply ${totalSupply.toString()} totalReserveScaled ${totalReserveScaled.toString()}`,
-	)
-
-	// Encode the contract call data for updateReserves
+	// Encode the contract call data
 	const callData = encodeFunctionData({
-		abi: ReserveManager,
-		functionName: 'updateReserves',
-		args: [
-			{
-				totalMinted: totalSupply,
-				totalReserve: totalReserveScaled,
-			},
-		],
+		abi,
+		functionName,
+		args,
 	})
 
 	// Step 1: Generate report using consensus capability
@@ -215,7 +209,7 @@ const updateReserves = (
 
 	const resp = evmClient
 		.writeReport(runtime, {
-			receiver: evmConfig.proxyAddress,
+			receiver: contractAddress,
 			report: reportResponse,
 			gasConfig: {
 				gasLimit: evmConfig.gasLimit,
@@ -233,7 +227,56 @@ const updateReserves = (
 
 	runtime.log(`Write report transaction succeeded at txHash: ${bytesToHex(txHash)}`)
 
-	return txHash.toString()
+	return txHash
+}
+
+const updateReserves = (
+	runtime: Runtime<Config>,
+	totalSupply: bigint,
+	totalReserveScaled: bigint,
+): string => {
+	const evmConfig = runtime.config.evms[0]
+
+	runtime.log(
+		`Updating reserves totalSupply ${totalSupply.toString()} totalReserveScaled ${totalReserveScaled.toString()}`,
+	)
+
+	const txHash = sendEVMTransaction(
+		runtime,
+		evmConfig,
+		evmConfig.proxyAddress,
+		ReserveManager,
+		'updateReserves',
+		[
+			{
+				totalMinted: totalSupply,
+				totalReserve: totalReserveScaled,
+			},
+		],
+	)
+
+	return bytesToHex(txHash)
+}
+
+const incrementCounter = (runtime: Runtime<Config>): string => {
+	const evmConfig = runtime.config.evms[0]
+
+	if (!evmConfig.counterAddress) {
+		throw new Error('Counter address is not defined in config')
+	}
+
+	runtime.log('Incrementing counter')
+
+	const txHash = sendEVMTransaction(
+		runtime,
+		evmConfig,
+		evmConfig.counterAddress,
+		Counter,
+		'increment',
+		[],
+	)
+
+	return bytesToHex(txHash)
 }
 
 const doPOR = (runtime: Runtime<Config>): string => {
@@ -323,7 +366,8 @@ const onCronTrigger = (runtime: Runtime<Config>, payload: CronPayload): string =
 
 	runtime.log('Running CronTrigger')
 
-	return doPOR(runtime)
+	// return doPOR(runtime)
+	return incrementCounter(runtime)
 }
 
 const onLogTrigger = (runtime: Runtime<Config>, payload: EVMLog): string => {

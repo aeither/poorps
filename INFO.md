@@ -15,3 +15,8 @@ cre workflow simulate my-workflow
 cre workflow simulate my-workflow --broadcast
 
 --
+
+### Counter
+```bash
+source .env && rm -rf cache out && forge build && forge script --chain 84532 script/Counter.s.sol:CounterScript --rpc-url https://sepolia.base.org --broadcast --verify -vvvv --private-key ${PRIVATE_KEY}
+```
