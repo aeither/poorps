@@ -111,3 +111,7 @@ We implemented a "virtual" bonding curve where the price discovery mechanism is 
 https://github.com/aeither/poorps/blob/6c74fde69b042e2b24629d1ff69fd20c316df62f/poorps-workflow/main.ts#L101
 
 we implemented pyth pricing, for liquididation and for user notification
+
+![photo_2025-11-23_08-34-14](https://github.com/user-attachments/assets/01161761-485c-4f94-bc49-0a7de6f48f19)
+![photo_2025-11-23_08-36-32](https://github.com/user-attachments/assets/21233e31-0be7-49ef-9fcb-152dccd02405)
+
